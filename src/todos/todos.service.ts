@@ -8,6 +8,9 @@ export class TodosService {
   constructor(private readonly prisma: PrismaClient) {}
 
   async create(createTodoDto: CreateTodoDto) {
+    //temporary error fix of not creating id in users
+    createTodoDto.user_id = 1;
+
     return this.prisma.todo.create({
       data: createTodoDto,
     });
