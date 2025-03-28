@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { UsersService } from 'src/users/users.service';
 import { RegisterDto } from './dto/register.dto';
@@ -15,7 +19,7 @@ export class AuthService {
   ) {}
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
-    const token = await this.jwtService.sign({ userId: user.id });
+    const token = await this.jwtService.sign(user);
     return { token };
   }
   async login(loginDto: LoginDto) {
@@ -39,7 +43,7 @@ export class AuthService {
     const isPasswordValid = await compare(loginDto.password, user.password);
 
     if (!isPasswordValid) {
-      throw new NotFoundException('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const token = await this.jwtService.signAsync(user);
