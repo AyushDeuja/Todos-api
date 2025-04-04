@@ -9,27 +9,30 @@ export class TodosService {
 
   async create(createTodoDto: CreateTodoDto) {
     //temporary error fix of not creating id in users
-    createTodoDto.user_id = 1;
 
     return this.prisma.todo.create({
       data: createTodoDto,
     });
   }
 
-  //for multiple todos data in table
-  async createMany(createTodoDto: CreateTodoDto[]) {
-    return this.prisma.todo.createMany({
-      data: createTodoDto,
+  // //for multiple todos data in table
+  // async createMany(createTodoDto: CreateTodoDto[]) {
+  //   return this.prisma.todo.createMany({
+  //     data: createTodoDto,
+  //   });
+  // }
+
+  async findAll(user_id: number) {
+    return this.prisma.todo.findMany({
+      where: {
+        user_id,
+      },
     });
   }
 
-  async findAll() {
-    return this.prisma.todo.findMany();
-  }
-
-  async findOne(id: number) {
+  async findOne(id: number, user_id: number) {
     const todo = await this.prisma.todo.findUnique({
-      where: { id },
+      where: { id, user_id },
     });
     if (!todo) {
       throw new NotFoundException('Todo not found');
@@ -38,15 +41,15 @@ export class TodosService {
   }
 
   async update(id: number, updateTodoDto: UpdateTodoDto) {
-    await this.findOne(id);
+    await this.findOne(id, updateTodoDto.user_id as number);
     return this.prisma.todo.update({
       where: { id },
       data: updateTodoDto,
     });
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
+  async remove(id: number, user_id: number) {
+    await this.findOne(id, user_id);
     return this.prisma.todo.delete({
       where: { id },
     });
