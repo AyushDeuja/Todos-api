@@ -10,6 +10,8 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { compare } from 'bcrypt';
 import { UpdateProfileDto } from './dto/update-user.dto';
+import { MailerService } from '@nestjs-modules/mailer';
+import { from } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -17,9 +19,17 @@ export class AuthService {
     private readonly prisma: PrismaClient,
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly mail: MailerService,
   ) {}
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
+    await this.sendVerificationMail({
+      data: {
+        from: 'test@example.com',
+        to: 'test@test.com',
+        otp: 123456,
+      },
+    });
     const token = await this.jwtService.sign(user);
     return { token };
   }
@@ -50,10 +60,29 @@ export class AuthService {
     const token = await this.jwtService.signAsync(user);
     return { token };
   }
+
+  //profile id update
   async profile(user_id: number) {
     return this.usersService.findOne(user_id);
   }
   async updateProfile(user_id: number, updateProfileDto: UpdateProfileDto) {
     return this.usersService.update(user_id, updateProfileDto);
+  }
+
+  //mail verification
+  async sendVerificationMail(job: any) {
+    const { data } = job;
+    try {
+      await this.mail.sendMail({
+        ...data,
+        subject: 'Verify Your Email',
+        template: 'Verify-email',
+        context: {
+          otp: data.otp,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }
 }
