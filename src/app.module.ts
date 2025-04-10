@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bull';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { join } from 'path';
 
 @Module({
@@ -24,6 +25,7 @@ import { join } from 'path';
       },
       template: {
         dir: join(__dirname, 'templates'),
+        adapter: new HandlebarsAdapter(),
       },
     }),
     BullModule.forRoot({
