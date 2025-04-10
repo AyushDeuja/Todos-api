@@ -11,7 +11,6 @@ import { LoginDto } from './dto/login.dto';
 import { compare } from 'bcrypt';
 import { UpdateProfileDto } from './dto/update-user.dto';
 import { MailerService } from '@nestjs-modules/mailer';
-import { from } from 'rxjs';
 
 @Injectable()
 export class AuthService {
