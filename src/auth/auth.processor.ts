@@ -13,7 +13,7 @@ export class AuthProcessor {
         subject: 'Verify Your Email',
         template: 'verify-email',
         context: {
-          otp: data.otp,
+          otp: data.otp, //this goes to templates verify-email.hbs
         },
       });
     } catch (err) {
