@@ -12,6 +12,7 @@ import { compare } from 'bcrypt';
 import { UpdateProfileDto } from './dto/update-user.dto';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { randomInt } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -24,11 +25,22 @@ export class AuthService {
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
 
+    //generate 6-digit OTP
+    const otp = randomInt(100000, 999999);
+
+    //Store OTP in the VerificationCide table
+    await this.prisma.verificationCode.create({
+      data: {
+        userId: user.id,
+        verificationCode: otp,
+      },
+    });
+
     //for queuing mail
     await this.queue.add('verifyEmailAddress', {
       from: 'info@todoapp.com',
       to: user.email,
-      otp: 123456,
+      otp: otp,
     });
     const token = await this.jwtService.sign(user);
     return { token };
