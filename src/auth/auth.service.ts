@@ -13,6 +13,7 @@ import { UpdateProfileDto } from './dto/update-user.dto';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { randomInt } from 'crypto';
+import { generate } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -22,12 +23,26 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectQueue('auth') private readonly queue: Queue,
   ) {}
+
+  // Ensure the OTP is unique by checking against existing codes in the database
+  async generateVerificationCode() {
+    let verificationCode: number;
+    do {
+      verificationCode = randomInt(100000, 999999);
+      const existingCode = await this.prisma.verificationCode.findFirst({
+        where: { verificationCode },
+      });
+      if (!existingCode) {
+        return verificationCode;
+      }
+    } while (true);
+  }
+
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
 
     //generate 6-digit OTP
-    const otp = randomInt(100000, 999999);
-
+    const otp = await this.generateVerificationCode();
     //Store OTP in the VerificationCide table
     await this.prisma.verificationCode.create({
       data: {
