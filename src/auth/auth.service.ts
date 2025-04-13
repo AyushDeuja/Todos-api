@@ -13,7 +13,6 @@ import { UpdateProfileDto } from './dto/update-user.dto';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { randomInt } from 'crypto';
-import { generate } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -41,8 +40,9 @@ export class AuthService {
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
 
-    //generate 6-digit OTP
+    //add verification code in OTP
     const otp = await this.generateVerificationCode();
+
     //Store OTP in the VerificationCide table
     await this.prisma.verificationCode.create({
       data: {
