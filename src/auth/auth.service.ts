@@ -51,7 +51,7 @@ export class AuthService {
       },
     });
 
-    //for queuing mail
+    //for mailing in queue
     await this.queue.add('verifyEmailAddress', {
       from: 'info@todoapp.com',
       to: user.email,
