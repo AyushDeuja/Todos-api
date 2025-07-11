@@ -41,22 +41,22 @@ export class AuthService {
     const user = await this.usersService.create(registerDto);
 
     //add verification code in OTP
-    const otp = await this.generateVerificationCode();
+    // const otp = await this.generateVerificationCode();
 
-    //Store OTP in the VerificationCide table
-    await this.prisma.verificationCode.create({
-      data: {
-        userId: user.id,
-        verificationCode: otp,
-      },
-    });
+    // //Store OTP in the VerificationCide table
+    // await this.prisma.verificationCode.create({
+    //   data: {
+    //     userId: user.id,
+    //     verificationCode: otp,
+    //   },
+    // });
 
     //for mailing in queue
-    await this.queue.add('verifyEmailAddress', {
-      from: 'info@todoapp.com',
-      to: user.email,
-      otp: otp,
-    });
+    // await this.queue.add('verifyEmailAddress', {
+    //   from: 'info@todoapp.com',
+    //   to: user.email,
+    //   otp: otp,
+    // });
     const token = await this.jwtService.sign(user);
     return { token };
   }
